@@ -1,6 +1,7 @@
 #include "shader.h"
 
 
+
 Shader::Shader(const char* vertex_filename, const char* fragment_filename):m_shader_program(0)
 {
 	std::string vertex_code;
@@ -75,6 +76,11 @@ void Shader::setFloat(const std::string& name, float value)
 {
 	GLuint location = glGetUniformLocation(m_shader_program, name.c_str());
 	glUniform1f(location, value);
+}
+void Shader::setMatrix4(const std::string& name, glm::mat4 value)
+{
+	GLuint location = glGetUniformLocation(m_shader_program, name.c_str());
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 
