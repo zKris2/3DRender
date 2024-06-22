@@ -3,39 +3,24 @@
 #include<GLFW/glfw3.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include"stb_image.h"
+#include<glm/glm.hpp>
+#include<glm/gtc/matrix_transform.hpp>
+#include<glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
+#include"glframework/shader.h"
 
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
+//VAO
 GLuint g_vao;
-
-GLuint g_vertex_shader;
-GLuint g_fragment_shader;
-GLuint g_shader_porgram;
-
+//Shader
+Shader* shader;
+// Texture
 GLuint g_texture;
 int img_width, img_height;
-
-
-const char* vertexShaderSource =
-	"#version 460 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"layout (location = 1) in vec2 aUV;\n"
-	"out vec2 uv;\n"
-	"void main()\n"
-	"{\n"
-	"   gl_Position = vec4(aPos, 1.0);\n"
-	"   uv = aUV;\n"
-	"}\0";
-const char* fragmentShaderSource =
-	"#version 330 core\n"
-	"out vec4 FragColor;\n"
-	"uniform sampler2D smapler;\n"
-	"in vec2 uv;\n"
-	"void main()\n"
-	"{\n"
-	"	FragColor = texture(smapler, uv);\n"
-	"}\n\0";
 
 void prepareData()
 {
@@ -103,7 +88,6 @@ void prepareData()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 	
-
 	//vao
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -121,33 +105,6 @@ void prepareData()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
 
 	glBindVertexArray(0);
-}
-
-void prepareShader()
-{
-	// compile shader
-	int result = 0;
-	//vertex
-	g_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(g_vertex_shader, 1, &vertexShaderSource, NULL);
-	glCompileShader(g_vertex_shader);
-	glGetShaderiv(g_vertex_shader, GL_COMPILE_STATUS, &result);
-	//fragment
-	g_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(g_fragment_shader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(g_fragment_shader);
-	glGetShaderiv(g_fragment_shader, GL_COMPILE_STATUS, &result);
-
-	// create program
-	g_shader_porgram = glCreateProgram();
-	//attach
-	glAttachShader(g_shader_porgram, g_vertex_shader);
-	glAttachShader(g_shader_porgram, g_fragment_shader);
-	//link
-	glLinkProgram(g_shader_porgram);
-
-	glDeleteShader(g_vertex_shader);
-	glDeleteShader(g_fragment_shader);
 }
 
 void prepareTexture(const std::string& filename,unsigned int uint = 0) {
@@ -170,6 +127,11 @@ void prepareTexture(const std::string& filename,unsigned int uint = 0) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 }
+void prepareShader()
+{
+	shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+}
+
 int main()
 {
 	GLFWwindow* window = nullptr;
@@ -211,9 +173,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//shader
-		glUseProgram(g_shader_porgram);
-		GLuint location = glGetUniformLocation(g_shader_porgram, "smapler");
-		glUniform1i(location, 0);
+		shader->begin();
+		shader->setFloat("smapler", 0);
 
 		//bind vao
 		glBindVertexArray(g_vao);
@@ -221,7 +182,7 @@ int main()
 		//draw
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-		glUseProgram(0);
+		shader->end();
 	}
 	glfwTerminate();
 	return 0;

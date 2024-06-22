@@ -12,6 +12,9 @@ link_directories(
 file(GLOB ASSETS "assets")
 file(COPY ${ASSETS} DESTINATION ${CMAKE_BINARY_DIR})
 
-add_executable(Rotating-Album "main.cpp" "glad.c" "stb_image.h")
+add_subdirectory(glframework)
 
-target_link_libraries(Rotating-Album glfw3.lib)
+
+add_executable(Rotating-Album "main.cpp" "glad.c" "stb_image.h" "glframework/shader.h" "glframework/shader.cpp")
+
+target_link_libraries(Rotating-Album glfw3.lib pack_glfw)
