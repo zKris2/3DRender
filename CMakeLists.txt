@@ -9,6 +9,9 @@ link_directories(
 	SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lib
 )
 
-add_executable(Rotating-Album "main.cpp" "glad.c")
+file(GLOB ASSETS "assets")
+file(COPY ${ASSETS} DESTINATION ${CMAKE_BINARY_DIR})
+
+add_executable(Rotating-Album "main.cpp" "glad.c" "stb_image.h")
 
 target_link_libraries(Rotating-Album glfw3.lib)
