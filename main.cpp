@@ -23,6 +23,7 @@ GLuint g_texture;
 int img_width, img_height;
 //Metrix
 glm::mat4 camera_metrix(1.0f);
+glm::mat4 prespective_metrix(1.0f);
 
 void prepareData()
 {
@@ -50,10 +51,10 @@ void prepareData()
 	std::cout << "w_ratio:" << w_ratio << std::endl;
 	std::cout << "h_ratio:" << h_ratio << std::endl;
 	float position[] = {
-		-w_ratio, -h_ratio,  0.0f,
-		 w_ratio, -h_ratio,  0.0f,
-		-w_ratio,  h_ratio,  0.0f,
-		 w_ratio,  h_ratio,  0.0f
+		-w_ratio, -0,  0.0f,
+		 w_ratio, -0,  0.0f,
+		-w_ratio,  2*h_ratio,  0.0f,
+		 w_ratio,  2*h_ratio,  0.0f
 	};
 	/*float position[] = {
 		- w_ratio * 0.5f, - h_ratio * 0.5f,  0.0f,
@@ -134,7 +135,8 @@ void prepareShader()
 	shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 }
 void MetrixTransform() {
-	camera_metrix = glm::lookAt(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	camera_metrix = glm::lookAt(glm::vec3(0.0f, 0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	prespective_metrix = glm::perspective(glm::radians(60.0f), (float)1080.f / (float)1920.f , 0.1f, 1000.0f);
 }
 
 int main()
@@ -181,8 +183,8 @@ int main()
 		//shader
 		shader->begin();
 		shader->setFloat("smapler", 0);
-		shader->setMatrix4("camera_matrix", 0);
 		shader->setMatrix4("camera_matrix", camera_metrix);
+		shader->setMatrix4("prespective_metrix", prespective_metrix);
 
 		//bind vao
 		glBindVertexArray(g_vao);
