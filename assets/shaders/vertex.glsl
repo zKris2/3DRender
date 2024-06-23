@@ -4,13 +4,14 @@ layout (location = 1) in vec2 aUV;
 
 uniform mat4 camera_matrix;
 uniform mat4 ortho_metrix;
+uniform mat4 forward_metrix;
 
 out vec2 uv;
 
 void main()
 {
 	vec4 position = vec4(aPos,1.0);
-	position =  ortho_metrix * camera_matrix  * position;
+	position =   forward_metrix  * ortho_metrix * camera_matrix  * position;
 	gl_Position = position;
 	uv = aUV;
 }

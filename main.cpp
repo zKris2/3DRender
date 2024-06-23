@@ -24,6 +24,7 @@ int img_width, img_height;
 //Metrix
 glm::mat4 camera_metrix(1.0f);
 glm::mat4 ortho_metrix(1.0f);
+glm::mat4 forward_metrix(1.0f);
 
 
 void prepareData()
@@ -135,9 +136,18 @@ void prepareShader()
 {
 	shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 }
+
+double trans = 0.0;
 void MetrixTransform() {
-	camera_metrix = glm::lookAt(glm::vec3(0.1f, 0.1f, 0.9f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	camera_metrix = glm::lookAt(glm::vec3(0.0f, 0.1f, 0.9f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	ortho_metrix = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f);
+
+	if (trans < 0.98)
+	{
+		trans = sin(glfwGetTime());
+	}
+
+	forward_metrix = glm::scale(glm::identity<glm::mat4>(), glm::vec3(1.0f + trans, 1.0f + trans, 1.0f));
 }
 
 int main()
@@ -168,7 +178,7 @@ int main()
 	prepareTexture("assets/images/2.png", 0);
 	prepareData();
 	prepareShader();
-	MetrixTransform();
+	
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -181,12 +191,14 @@ int main()
 		// clear buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		MetrixTransform();
+
 		//shader
 		shader->begin();
 		shader->setFloat("smapler", 0);
-		shader->setMatrix4("camera_matrix", 0);
 		shader->setMatrix4("camera_matrix", camera_metrix);
 		shader->setMatrix4("ortho_metrix", ortho_metrix);
+		shader->setMatrix4("forward_metrix", forward_metrix);
 
 		//bind vao
 		glBindVertexArray(g_vao);
