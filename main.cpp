@@ -10,9 +10,14 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include"glframework/shader.h"
+#include"Application/camera/perspective_camera.h"
+#include"Application/camera/camera_control.h"
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+GLFWwindow* window = nullptr;
+
+#define WINDOW_WIDTH 1920.0
+#define WINDOW_HEIGHT 1080.0
+
 
 //VAO
 GLuint g_vao;
@@ -21,29 +26,15 @@ Shader* shader;
 // Texture
 GLuint g_texture;
 int img_width, img_height;
-//Metrix
-glm::mat4 camera_metrix(1.0f);
-glm::mat4 prespective_metrix(1.0f);
+//camera
+PerspectiveCamera* camera = nullptr;
+CameraControl* camera_control = nullptr;
+//Matrix
+glm::mat4 model_matrix(1.0f);
+glm::mat4 perspective_matrix(1.0f);
 
 void prepareData()
 {
-	/*float position[] = {
-		-1.0f, -1.0f,  0.0f,
-		 1.0f ,-1.0f,  0.0f,
-		 0.0f, 1.0f,  0.0f,
-	};*/
-	/*float position[] = {
-		-1.0f, -1.0f,  0.0f,
-		 1.0f ,-1.0f,  0.0f,
-		 -1.0f, 1.0f,  0.0f,
-		 1.0f, 1.0f,  0.0f
-	};*/
-	/*float position[] = {
-		-0.5f, -0.5f,  0.0f,
-		 0.5f ,-0.5f,  0.0f,
-		 -0.5f, 0.5f,  0.0f,
-		 0.5f,  0.5f,  0.0f
-	};*/
 	float w_ratio = (float)((float)img_width / (float)WINDOW_WIDTH);
 	float h_ratio = (float)((float)img_height / (float)WINDOW_HEIGHT);
 	std::cout << "img_width:" << img_width << std::endl;
@@ -51,10 +42,10 @@ void prepareData()
 	std::cout << "w_ratio:" << w_ratio << std::endl;
 	std::cout << "h_ratio:" << h_ratio << std::endl;
 	float position[] = {
-		-w_ratio, -0,  0.0f,
-		 w_ratio, -0,  0.0f,
-		-w_ratio,  2*h_ratio,  0.0f,
-		 w_ratio,  2*h_ratio,  0.0f
+		-w_ratio * 0.5, -0,  0.0f,
+		 w_ratio * 0.5, -0,  0.0f,
+		-w_ratio * 0.5,  h_ratio,  0.0f,
+		 w_ratio * 0.5,  h_ratio,  0.0f
 	};
 	/*float position[] = {
 		- w_ratio * 0.5f, - h_ratio * 0.5f,  0.0f,
@@ -62,6 +53,12 @@ void prepareData()
 		 - w_ratio * 0.5f,  h_ratio * 0.5f,  0.0f,
 		  w_ratio * 0.5f,  h_ratio * 0.5f,  0.0f
 	};*/
+	float color[] = {
+		-w_ratio * 0.5, -0,  0.0f,
+		 w_ratio * 0.5, -0,  0.0f,
+		-w_ratio * 0.5,  h_ratio,  0.0f,
+		 w_ratio * 0.5,  h_ratio,  0.0f
+	};
 
 	float index[] = {
 		0,1,2,
@@ -134,15 +131,60 @@ void prepareShader()
 {
 	shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 }
-void MetrixTransform() {
-	camera_metrix = glm::lookAt(glm::vec3(0.0f, 0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	prespective_metrix = glm::perspective(glm::radians(60.0f), (float)1080.f / (float)1920.f , 0.1f, 1000.0f);
+
+
+void prepareCamera()
+{
+	camera = new PerspectiveCamera(60.f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
+	camera_control = new CameraControl();
+	camera_control->set_camera(camera);
 }
+
+float angles = 1.0f;
+void perpareMatrix()
+{
+	glm::mat4 scale_matrix(1.0f);
+	glm::mat4 transform_matrix(1.0f);
+	glm::mat4 rotate_matrix(1.0f);
+	//fovy:张角
+	//aspect:横纵比
+	//zNear:近平面距离（与相机的距离，所以是正数）
+	//zFar:远平面距离
+	perspective_matrix = glm::perspective(glm::radians(60.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 1000.0f);
+	
+	transform_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.5f));
+	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 1.0f));
+	angles += 0.1f;
+	rotate_matrix = glm::rotate(rotate_matrix, glm::radians(angles), glm::vec3(0.0, 1.0, 0.0));
+	model_matrix = rotate_matrix * transform_matrix * scale_matrix;
+}
+
+
+void window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	camera_control->on_key(key, action, mods);
+}
+void window_mouse(GLFWwindow* window, int button, int action, int mods) {
+	double x;
+	double y;
+	glfwGetCursorPos(window, &x, &y);
+	camera_control->on_mouse(button, action, x, y);
+}
+void window_cursor(GLFWwindow* window, double xpos, double ypos)
+{
+	camera_control->on_cursor(xpos, ypos);
+}
+
+void bind_events()
+{
+	glfwSetKeyCallback(window, window_key);
+	glfwSetMouseButtonCallback(window, window_mouse);
+	glfwSetCursorPosCallback(window, window_cursor);
+}
+
 
 int main()
 {
-	GLFWwindow* window = nullptr;
-	
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -167,7 +209,11 @@ int main()
 	prepareTexture("assets/images/2.png", 0);
 	prepareData();
 	prepareShader();
-	MetrixTransform();
+	
+	prepareCamera();
+	
+
+	bind_events();
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -180,11 +226,15 @@ int main()
 		// clear buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		camera_control->update();
+		perpareMatrix();
+
 		//shader
 		shader->begin();
 		shader->setFloat("smapler", 0);
-		shader->setMatrix4("camera_matrix", camera_metrix);
-		shader->setMatrix4("prespective_metrix", prespective_metrix);
+		shader->setMatrix4("model_matrix", model_matrix);
+		shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
+		shader->setMatrix4("perspective_matrix", perspective_matrix);
 
 		//bind vao
 		glBindVertexArray(g_vao);
