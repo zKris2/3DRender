@@ -42,10 +42,10 @@ void prepareData()
 	std::cout << "w_ratio:" << w_ratio << std::endl;
 	std::cout << "h_ratio:" << h_ratio << std::endl;
 	float position[] = {
-		-w_ratio * 0.5, -0,  0.0f,
-		 w_ratio * 0.5, -0,  0.0f,
-		-w_ratio * 0.5,  h_ratio,  0.0f,
-		 w_ratio * 0.5,  h_ratio,  0.0f
+		-w_ratio , -h_ratio,  0.0f,
+		 w_ratio , -h_ratio,  0.0f,
+		-w_ratio ,  h_ratio,  0.0f,
+		 w_ratio ,  h_ratio,  0.0f
 	};
 	/*float position[] = {
 		- w_ratio * 0.5f, - h_ratio * 0.5f,  0.0f,
@@ -152,11 +152,10 @@ void perpareMatrix()
 	//zFar:Ô¶Æ½Ãæ¾àÀë
 	perspective_matrix = glm::perspective(glm::radians(60.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 1000.0f);
 	
-	transform_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.5f));
+	transform_matrix = glm::translate(scale_matrix, glm::vec3(0.0f, 0.0f, 0.5f));
 	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 1.0f));
-	angles += 0.1f;
-	rotate_matrix = glm::rotate(rotate_matrix, glm::radians(angles), glm::vec3(0.0, 1.0, 0.0));
-	model_matrix = rotate_matrix * transform_matrix * scale_matrix;
+	rotate_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(angles), glm::vec3(0.0, 1.0, 0.0));
+	model_matrix = rotate_matrix * transform_matrix ;
 }
 
 
@@ -229,11 +228,18 @@ int main()
 		camera_control->update();
 		perpareMatrix();
 
+		glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+		float radius = 5.0f;
+		float camX = static_cast<float>(sin(glfwGetTime()) * radius);
+		float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
+		view = glm::lookAt(glm::vec3(camX, 1.5f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	
+
 		//shader
 		shader->begin();
 		shader->setFloat("smapler", 0);
 		shader->setMatrix4("model_matrix", model_matrix);
-		shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
+		shader->setMatrix4("camera_matrix", view);
 		shader->setMatrix4("perspective_matrix", perspective_matrix);
 
 		//bind vao
