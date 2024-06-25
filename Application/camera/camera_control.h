@@ -3,6 +3,7 @@
 #include<iostream>
 
 #include"camera.h"
+#include"perspective_camera.h"
 
 class CameraControl
 {

@@ -135,7 +135,7 @@ void prepareShader()
 
 void prepareCamera()
 {
-	camera = new PerspectiveCamera(60.f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
+	camera = new PerspectiveCamera(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
 	camera_control = new CameraControl();
 	camera_control->set_camera(camera);
 }
@@ -150,7 +150,7 @@ void perpareMatrix()
 	//aspect:横纵比
 	//zNear:近平面距离（与相机的距离，所以是正数）
 	//zFar:远平面距离
-	perspective_matrix = glm::perspective(camera->m_fov, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 1000.0f);
+	perspective_matrix = glm::perspective(glm::radians(dynamic_cast<PerspectiveCamera*>(camera)->m_fovy), dynamic_cast<PerspectiveCamera*>(camera)->m_aspect, dynamic_cast<PerspectiveCamera*>(camera)->m_near, dynamic_cast<PerspectiveCamera*>(camera)->m_far);
 	
 	transform_matrix = glm::translate(scale_matrix, glm::vec3(0.0f, 0.0f, 0.5f));
 	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 1.0f));

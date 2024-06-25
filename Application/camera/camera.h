@@ -20,8 +20,6 @@ public:
 	glm::vec3 m_up;
 	glm::vec3 m_front;
 
-	float m_fov;
-
 	float m_yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
 	float m_pitch = 0.0f;
 };

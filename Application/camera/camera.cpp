@@ -2,7 +2,7 @@
 
 
 
-Camera::Camera():m_position(0.0f,0.0f,3.0f),m_up(0.0f,1.0f,0.0f), m_front(0.0f, 0.0f, -1.0f), m_fov(45.0f)
+Camera::Camera():m_position(0.0f,0.0f,3.0f),m_up(0.0f,1.0f,0.0f), m_front(0.0f, 0.0f, -1.0f)
 {
 }
 

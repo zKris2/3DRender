@@ -5,10 +5,10 @@
 class PerspectiveCamera:public Camera
 {
 public:
-	PerspectiveCamera(float fovy = 0.0f, float aspect=0.0f, float near=0.0f, float far=0.0f);
+	PerspectiveCamera(float fovy = 45.0f, float aspect=0.0f, float near=0.0f, float far=0.0f);
 	~PerspectiveCamera();
 	glm::mat4 get_project_matrix() override;
-private:
+public:
 	float m_fovy;
 	float m_aspect;
 	float m_near;

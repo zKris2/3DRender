@@ -91,10 +91,11 @@ void CameraControl::on_key(int key, int action, int mod)
 
 void CameraControl::on_scroll(double xoffset, double yoffset)
 {
-	m_camera->m_fov -= (float)yoffset;
-	if (m_camera->m_fov < 1.0f)
-		m_camera->m_fov = 1.0f;
-	if (m_camera->m_fov > 45.0f)
-		m_camera->m_fov = 45.0f;
-	std::cout << m_camera->m_fov << std::endl;
+	auto pers_camera = dynamic_cast<PerspectiveCamera*>(m_camera);
+	pers_camera->m_fovy -= (float)yoffset;
+	if (pers_camera->m_fovy < 1.0f)
+		pers_camera->m_fovy = 1.0f;
+	if (pers_camera->m_fovy > 45.0f)
+		pers_camera->m_fovy = 45.0f;
+	std::cout << pers_camera->m_fovy << std::endl;
 }
