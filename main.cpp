@@ -228,18 +228,11 @@ int main()
 		camera_control->update();
 		perpareMatrix();
 
-		glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		float radius = 5.0f;
-		float camX = static_cast<float>(sin(glfwGetTime()) * radius);
-		float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
-		view = glm::lookAt(glm::vec3(camX, 1.5f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	
-
 		//shader
 		shader->begin();
 		shader->setFloat("smapler", 0);
 		shader->setMatrix4("model_matrix", model_matrix);
-		shader->setMatrix4("camera_matrix", view);
+		shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		shader->setMatrix4("perspective_matrix", perspective_matrix);
 
 		//bind vao
