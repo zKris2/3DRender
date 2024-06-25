@@ -21,8 +21,10 @@ GLFWwindow* window = nullptr;
 
 //VAO
 GLuint g_vao;
+GLuint g_light_vao;
 //Shader
 Shader* shader;
+Shader* light_shader;
 // Texture
 GLuint g_texture;
 int img_width, img_height;
@@ -31,6 +33,7 @@ PerspectiveCamera* camera = nullptr;
 CameraControl* camera_control = nullptr;
 //Matrix
 glm::mat4 model_matrix(1.0f);
+glm::mat4 model_light_matrix(1.0f);
 glm::mat4 perspective_matrix(1.0f);
 
 void prepareData()
@@ -47,18 +50,6 @@ void prepareData()
 		-w_ratio ,  h_ratio,  0.0f,
 		 w_ratio ,  h_ratio,  0.0f
 	};
-	/*float position[] = {
-		- w_ratio * 0.5f, - h_ratio * 0.5f,  0.0f,
-		  w_ratio * 0.5f, - h_ratio * 0.5f,  0.0f,
-		 - w_ratio * 0.5f,  h_ratio * 0.5f,  0.0f,
-		  w_ratio * 0.5f,  h_ratio * 0.5f,  0.0f
-	};*/
-	float color[] = {
-		-w_ratio * 0.5, -0,  0.0f,
-		 w_ratio * 0.5, -0,  0.0f,
-		-w_ratio * 0.5,  h_ratio,  0.0f,
-		 w_ratio * 0.5,  h_ratio,  0.0f
-	};
 
 	float index[] = {
 		0,1,2,
@@ -71,11 +62,56 @@ void prepareData()
 		1.0f,1.0f
 	};
 
+	//cube
+	float cube[] = {
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		-0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+
+		-0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		-0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f, -0.5f,
+	};
+
 	//pos
 	GLuint pos_vbo = 0;
 	glGenBuffers(1, &pos_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
-	glBufferData(GL_ARRAY_BUFFER,sizeof(position), position, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
 	//uv
 	GLuint uv_vbo = 0;
 	glGenBuffers(1, &uv_vbo);
@@ -87,7 +123,7 @@ void prepareData()
 	glGenBuffers(1, &index_ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
-	
+
 	//vao
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -96,13 +132,29 @@ void prepareData()
 	//pos-vbo
 	glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE,sizeof(float)*3, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 	//index-ebo
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_ebo);
 	//uv-vbo
 	glBindBuffer(GL_ARRAY_BUFFER, uv_vbo);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
+
+
+	// light-vao
+	glGenVertexArrays(1, &g_light_vao);
+	glBindVertexArray(g_light_vao);
+
+	//light-vbo
+	GLuint light_vbo = 0;
+	glGenBuffers(1, &light_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, light_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+	//bind description
+	glBindBuffer(GL_ARRAY_BUFFER, light_vbo);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 	glBindVertexArray(0);
 }
@@ -127,11 +179,12 @@ void prepareTexture(const std::string& filename,unsigned int uint = 0) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 }
+
 void prepareShader()
 {
 	shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+	light_shader = new Shader("assets/shaders/light_vertex.vert", "assets/shaders/light_fragment.frag");
 }
-
 
 void prepareCamera()
 {
@@ -145,6 +198,7 @@ void perpareMatrix()
 {
 	glm::mat4 scale_matrix(1.0f);
 	glm::mat4 transform_matrix(1.0f);
+	glm::mat4 transform_light_matrix(1.0f);
 	glm::mat4 rotate_matrix(1.0f);
 	//fovy:张角
 	//aspect:横纵比
@@ -152,15 +206,20 @@ void perpareMatrix()
 	//zFar:远平面距离
 	perspective_matrix = glm::perspective(glm::radians(dynamic_cast<PerspectiveCamera*>(camera)->m_fovy), dynamic_cast<PerspectiveCamera*>(camera)->m_aspect, dynamic_cast<PerspectiveCamera*>(camera)->m_near, dynamic_cast<PerspectiveCamera*>(camera)->m_far);
 	
-	transform_matrix = glm::translate(scale_matrix, glm::vec3(0.0f, 0.0f, 0.5f));
+	transform_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 1.0f));
 	rotate_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(angles), glm::vec3(0.0, 1.0, 0.0));
-	model_matrix = rotate_matrix * transform_matrix ;
+	model_matrix = rotate_matrix * transform_matrix * scale_matrix;
+
+	transform_light_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 1.5f, -1.5f));
+	model_light_matrix =  transform_light_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(0.2f));
 }
 
 
 void window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
 	camera_control->on_key(key, action, mods);
 }
 void window_mouse(GLFWwindow* window, int button, int action, int mods) {
@@ -213,22 +272,18 @@ int main()
 	prepareTexture("assets/images/2.png", 0);
 	prepareData();
 	prepareShader();
-	
 	prepareCamera();
-	
 
+	//bind events
 	bind_events();
 
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		// exchange cache
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		// clear buffer
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		perpareMatrix();
 
@@ -238,14 +293,24 @@ int main()
 		shader->setMatrix4("model_matrix", model_matrix);
 		shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		shader->setMatrix4("perspective_matrix", perspective_matrix);
-
+		shader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		//bind vao
 		glBindVertexArray(g_vao);
-
 		//draw
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
 		shader->end();
+
+		light_shader->begin();
+		light_shader->setMatrix4("model_matrix", model_light_matrix);
+		light_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
+		light_shader->setMatrix4("perspective_matrix", perspective_matrix);
+		glBindVertexArray(g_light_vao);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		light_shader->end();
+
+		// exchange cache
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 	glfwTerminate();
 	return 0;
