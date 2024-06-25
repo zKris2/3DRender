@@ -150,7 +150,7 @@ void perpareMatrix()
 	//aspect:横纵比
 	//zNear:近平面距离（与相机的距离，所以是正数）
 	//zFar:远平面距离
-	perspective_matrix = glm::perspective(glm::radians(60.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 1000.0f);
+	perspective_matrix = glm::perspective(camera->m_fov, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 1000.0f);
 	
 	transform_matrix = glm::translate(scale_matrix, glm::vec3(0.0f, 0.0f, 0.5f));
 	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 1.0f));
@@ -173,12 +173,17 @@ void window_cursor(GLFWwindow* window, double xpos, double ypos)
 {
 	camera_control->on_cursor(xpos, ypos);
 }
+void window_scroll(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera_control->on_scroll(xoffset, yoffset);
+}
 
 void bind_events()
 {
 	glfwSetKeyCallback(window, window_key);
 	glfwSetMouseButtonCallback(window, window_mouse);
 	glfwSetCursorPosCallback(window, window_cursor);
+	glfwSetScrollCallback(window, window_scroll);
 }
 
 
@@ -225,7 +230,6 @@ int main()
 		// clear buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		camera_control->update();
 		perpareMatrix();
 
 		//shader

@@ -2,7 +2,7 @@
 
 
 
-Camera::Camera():m_position(0.0f,0.0f,3.0f),m_up(0.0f,1.0f,0.0f),m_right(1.0f,0.0f,0.0f)
+Camera::Camera():m_position(0.0f,0.0f,3.0f),m_up(0.0f,1.0f,0.0f), m_front(0.0f, 0.0f, -1.0f), m_fov(45.0f)
 {
 }
 
@@ -12,10 +12,7 @@ Camera::~Camera()
 glm::mat4 Camera::get_camera_matrix()
 {
 	//lookAt
-	glm::vec3 front = glm::cross(m_up, m_right);
-	glm::vec3 center = m_position + front;
-	//glm::vec3 center = glm::vec3(0.0f,0.0f,0.0f);
-
+	glm::vec3 center = m_position + m_front;
 	return glm::lookAt(m_position,center,m_up);
 }
 
