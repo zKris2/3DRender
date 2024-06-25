@@ -13,8 +13,8 @@ glm::mat4 Camera::get_camera_matrix()
 {
 	//lookAt
 	glm::vec3 front = glm::cross(m_up, m_right);
-	//glm::vec3 center = m_position + front;
-	glm::vec3 center = glm::vec3(0.0f,0.0f,0.0f);
+	glm::vec3 center = m_position + front;
+	//glm::vec3 center = glm::vec3(0.0f,0.0f,0.0f);
 
 	return glm::lookAt(m_position,center,m_up);
 }

@@ -31,7 +31,6 @@ private:
 	float m_sensitivity = 0.2f;
 	Camera* m_camera = nullptr;
 
-	float yaw = 0.0f;
-	float pitch = 0.0f;
+	float m_key_remove = 0.0f;
 };
 
