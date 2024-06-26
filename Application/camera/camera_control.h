@@ -17,7 +17,11 @@ public:
 	virtual void on_scroll(double xoffset, double yoffset);
 
 	void set_camera(Camera* camera) { m_camera = camera; }
+	void set_camera_pos(glm::vec3 position) { m_camera->m_position = position; }
 	void set_sensitivity(float sentitivity) { m_sensitivity = sentitivity; }
+
+	glm::vec3 get_camer_pos() { return m_camera->m_position; }
+	glm::mat4 get_camer_matrix() { return m_camera->get_camera_matrix(); }
 private:
 	bool m_left_mouse_down = false;
 	bool m_right_mouse_down = false;

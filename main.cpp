@@ -40,7 +40,7 @@ glm::mat4 perspective_matrix(1.0f);
 
 //Light Color
 glm::vec3 light_color(1.0f, 1.0f, 1.0f);
-glm::vec3 light_pos(1.2f, 1.0f, 2.0f);
+glm::vec3 light_pos(0.5f, 1.0f, 0.5f);
 
 void prepareData()
 {
@@ -201,6 +201,7 @@ void prepareCamera()
 	camera = new PerspectiveCamera(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
 	camera_control = new CameraControl();
 	camera_control->set_camera(camera);
+	camera_control->set_camera_pos(glm::vec3(0.0f,1.5f,4.0f));
 	camera_control->set_sensitivity(0.1f);
 
 }
@@ -219,7 +220,7 @@ void perpareMatrix()
 	perspective_matrix = glm::perspective(glm::radians(dynamic_cast<PerspectiveCamera*>(camera)->m_fovy), dynamic_cast<PerspectiveCamera*>(camera)->m_aspect, dynamic_cast<PerspectiveCamera*>(camera)->m_near, dynamic_cast<PerspectiveCamera*>(camera)->m_far);
 	
 	transform_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5f));
+	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
 	rotate_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(angles), glm::vec3(0.0, 1.0, 0.0));
 	model_matrix = rotate_matrix * transform_matrix * scale_matrix;
 
@@ -314,7 +315,8 @@ int main()
 		shader->setMatrix4("perspective_matrix", perspective_matrix);
 		shader->setVec3("light_color", light_color);
 		shader->setVec3("light_pos", light_pos);
-		shader->setVec3("model_color", glm::vec3(0.5f,0.2f,0.1f));
+		shader->setVec3("model_color", glm::vec3(0.5f, 0.2f, 0.1f));
+		shader->setVec3("view_pos", camera_control->get_camer_pos());
 		//bind vao
 		glBindVertexArray(g_vao);
 		//draw
