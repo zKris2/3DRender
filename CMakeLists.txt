@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(Rotating-Album)
+project(3DRender)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
@@ -12,10 +12,9 @@ link_directories(
 file(GLOB ASSETS "assets")
 file(COPY ${ASSETS} DESTINATION ${CMAKE_BINARY_DIR})
 
-add_subdirectory(glframework)
 add_subdirectory(Application)
 
 
-add_executable(Rotating-Album "main.cpp" "glad.c")
+add_executable(3DRender "main.cpp" "glad.c")
 
-target_link_libraries(Rotating-Album glfw3.lib pack_glfw application)
+target_link_libraries(3DRender glfw3.lib application)

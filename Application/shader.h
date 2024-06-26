@@ -5,6 +5,7 @@
 #include<fstream>
 #include<sstream>
 #include<iostream>
+#include<memory>
 
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
@@ -15,6 +16,7 @@
 class Shader
 {
 public:
+	using ptr = std::unique_ptr<Shader>;
 	Shader(const char* vertex_path, const char* fragment_path);
 	~Shader();
 
