@@ -91,7 +91,7 @@ void prepareData()
 		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
-
+	
 	//vao
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -249,6 +249,7 @@ int main()
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	prepareTexture("assets/textures/container2.png", 0);
+	prepareTexture("assets/textures/container2_specular.png", 1);
 	prepareData();
 	prepareShader();
 	prepareCamera();
@@ -260,22 +261,31 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
+	glm::vec3 cubePositions[] = {
+	   glm::vec3(0.0f,  0.0f,  0.0f),
+	   glm::vec3(2.0f,  5.0f, -15.0f),
+	   glm::vec3(-1.5f, -2.2f, -2.5f),
+	   glm::vec3(-3.8f, -2.0f, -12.3f),
+	   glm::vec3(2.4f, -0.4f, -3.5f),
+	   glm::vec3(-1.7f,  3.0f, -7.5f),
+	   glm::vec3(1.3f, -2.0f, -2.5f),
+	   glm::vec3(1.5f,  2.0f, -2.5f),
+	   glm::vec3(1.5f,  0.2f, -1.5f),
+	   glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		// clear buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*light_color.x = sin(glfwGetTime() * 2.0f);
-		light_color.y = sin(glfwGetTime() * 0.7f);
-		light_color.z = sin(glfwGetTime() * 1.3f);*/
 		glm::vec3 diffuseColor = light_color * glm::vec3(0.5f); // 降低影响
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
 
 		//shader
 		shader->begin();
-		shader->setInt("smapler", 0);
-		shader->setMatrix4("model_matrix", model_matrix);
+		//shader->setMatrix4("model_matrix", model_matrix);
 		shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		shader->setMatrix4("perspective_matrix", perspective_matrix);
 	
@@ -283,28 +293,34 @@ int main()
 		shader->setVec3("view_pos", camera_control->get_camer_pos());
 
 		shader->setInt("material.diffuse", 0);
-		shader->setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+		shader->setInt("material.specular", 1);
 		shader->setFloat("material.shininess", 32.0f);
 
-		shader->setVec3("light.position", light_pos);
+		shader->setVec3("light.direction", -0.2f, -1.0f, -0.3f);
 		shader->setVec3("light.ambient", ambientColor);
 		shader->setVec3("light.diffuse", diffuseColor); // 将光照调暗了一些以搭配场景
 		shader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-
-		//bind vao
-		glBindVertexArray(g_vao);
-		//draw
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		shader->end();
+		
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			shader->setMatrix4("model_matrix", model);
+			glBindVertexArray(g_vao);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+	
 
 		// light shader
-		light_shader->begin();
+	/*	light_shader->begin();
 		light_shader->setMatrix4("model_matrix", model_light_matrix);
 		light_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		light_shader->setMatrix4("perspective_matrix", perspective_matrix);
 		glBindVertexArray(g_light_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		light_shader->end();
+		light_shader->end();*/
 
 		// exchange cache
 		glfwSwapBuffers(window);
