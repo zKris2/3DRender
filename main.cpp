@@ -15,9 +15,8 @@
 
 GLFWwindow* window = nullptr;
 
-#define WINDOW_WIDTH 1920.0
-#define WINDOW_HEIGHT 1080.0
-
+const unsigned int WINDOW_WIDTH = 1920.0;
+const unsigned int WINDOW_HEIGHT = 1080.0;
 
 //VAO
 GLuint g_vao;
@@ -30,117 +29,129 @@ GLuint g_texture;
 int img_width, img_height;
 //camera
 PerspectiveCamera* camera = nullptr;
+float lastX = WINDOW_WIDTH / 2.0f;
+float lastY = WINDOW_HEIGHT / 2.0f;
+bool firstMouse = true;
 CameraControl* camera_control = nullptr;
 //Matrix
 glm::mat4 model_matrix(1.0f);
 glm::mat4 model_light_matrix(1.0f);
 glm::mat4 perspective_matrix(1.0f);
 
+//Light Color
+glm::vec3 light_color(1.0f, 1.0f, 1.0f);
+glm::vec3 light_pos(1.2f, 1.0f, 2.0f);
+
 void prepareData()
 {
-	float w_ratio = (float)((float)img_width / (float)WINDOW_WIDTH);
-	float h_ratio = (float)((float)img_height / (float)WINDOW_HEIGHT);
 	std::cout << "img_width:" << img_width << std::endl;
 	std::cout << "img_height:" << img_height << std::endl;
-	std::cout << "w_ratio:" << w_ratio << std::endl;
-	std::cout << "h_ratio:" << h_ratio << std::endl;
-	float position[] = {
-		-w_ratio , -h_ratio,  0.0f,
-		 w_ratio , -h_ratio,  0.0f,
-		-w_ratio ,  h_ratio,  0.0f,
-		 w_ratio ,  h_ratio,  0.0f
-	};
-
-	float index[] = {
-		0,1,2,
-		2,1,3
-	};
-	float uvs[] = {
-		0.0f,0.0f,
-		1.0f,0.0f,
-		0.0f,1.0f,
-		1.0f,1.0f
-	};
 
 	//cube
+	/*float cube[] = {
+		 -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};*/
 	float cube[] = {
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		 0.5f,  0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
-
-	//pos
-	GLuint pos_vbo = 0;
-	glGenBuffers(1, &pos_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
-	//uv
-	GLuint uv_vbo = 0;
-	glGenBuffers(1, &uv_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, uv_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
-
-	//index-ebo
-	GLuint index_ebo = 0;
-	glGenBuffers(1, &index_ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
 	//vao
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
 
+	//cube
+	GLuint cube_vbo = 0;
+	glGenBuffers(1, &cube_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+	
 	//bind description
-	//pos-vbo
-	glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
-	//index-ebo
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_ebo);
-	//uv-vbo
-	glBindBuffer(GL_ARRAY_BUFFER, uv_vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
-
-
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(3*sizeof(float)));
+	
 	// light-vao
 	glGenVertexArrays(1, &g_light_vao);
 	glBindVertexArray(g_light_vao);
@@ -154,7 +165,7 @@ void prepareData()
 	//bind description
 	glBindBuffer(GL_ARRAY_BUFFER, light_vbo);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 
 	glBindVertexArray(0);
 }
@@ -168,7 +179,7 @@ void prepareTexture(const std::string& filename,unsigned int uint = 0) {
 	glGenTextures(1, &g_texture);
 	glad_glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_texture);
-
+	//send data to GPU
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_width, img_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	stbi_image_free(data);
@@ -177,7 +188,6 @@ void prepareTexture(const std::string& filename,unsigned int uint = 0) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
 }
 
 void prepareShader()
@@ -191,6 +201,8 @@ void prepareCamera()
 	camera = new PerspectiveCamera(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
 	camera_control = new CameraControl();
 	camera_control->set_camera(camera);
+	camera_control->set_sensitivity(0.1f);
+
 }
 
 float angles = 1.0f;
@@ -207,12 +219,12 @@ void perpareMatrix()
 	perspective_matrix = glm::perspective(glm::radians(dynamic_cast<PerspectiveCamera*>(camera)->m_fovy), dynamic_cast<PerspectiveCamera*>(camera)->m_aspect, dynamic_cast<PerspectiveCamera*>(camera)->m_near, dynamic_cast<PerspectiveCamera*>(camera)->m_far);
 	
 	transform_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 1.0f));
+	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5f));
 	rotate_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(angles), glm::vec3(0.0, 1.0, 0.0));
 	model_matrix = rotate_matrix * transform_matrix * scale_matrix;
 
-	transform_light_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 1.5f, -1.5f));
-	model_light_matrix =  transform_light_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(0.2f));
+	model_light_matrix = glm::translate(glm::mat4(1.0f), light_pos);
+	model_light_matrix = glm::scale(model_light_matrix, glm::vec3(0.2f));
 }
 
 
@@ -226,6 +238,12 @@ void window_mouse(GLFWwindow* window, int button, int action, int mods) {
 	double x;
 	double y;
 	glfwGetCursorPos(window, &x, &y);
+	/*if (firstMouse)
+	{
+		x = lastX;
+		y = lastY;
+		firstMouse = false;
+	}*/
 	camera_control->on_mouse(button, action, x, y);
 }
 void window_cursor(GLFWwindow* window, double xpos, double ypos)
@@ -268,8 +286,9 @@ int main()
 	}
 
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	prepareTexture("assets/images/2.png", 0);
+	prepareTexture("assets/textures/container2.png", 0);
 	prepareData();
 	prepareShader();
 	prepareCamera();
@@ -277,29 +296,32 @@ int main()
 	//bind events
 	bind_events();
 
+	perpareMatrix();
+
 	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		// clear buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		perpareMatrix();
-
 		//shader
 		shader->begin();
-		shader->setFloat("smapler", 0);
+		shader->setInt("smapler", 0);
 		shader->setMatrix4("model_matrix", model_matrix);
 		shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		shader->setMatrix4("perspective_matrix", perspective_matrix);
-		shader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		shader->setVec3("light_color", light_color);
+		shader->setVec3("light_pos", light_pos);
+		shader->setVec3("model_color", glm::vec3(0.5f,0.2f,0.1f));
 		//bind vao
 		glBindVertexArray(g_vao);
 		//draw
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		shader->end();
 
+		// light shader
 		light_shader->begin();
 		light_shader->setMatrix4("model_matrix", model_light_matrix);
 		light_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
@@ -312,6 +334,13 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	if (shader != nullptr)
+		delete shader;
+	if (camera != nullptr)
+		delete camera;
+	if (camera_control != nullptr)
+		delete camera_control;
+
 	glfwTerminate();
 	return 0;
 }

@@ -1,3 +1,3 @@
-file(GLOB_RECURSE APP ./ *.cpp)
+file(GLOB_RECURSE APPLICATION ./ *.cpp)
 
-add_library(app ${APP})
+add_library(application ${APPLICATION})

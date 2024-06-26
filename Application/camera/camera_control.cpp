@@ -56,9 +56,8 @@ void CameraControl::on_cursor(double xpos, double ypos)
 	lastX = xposOut;
 	lastY = yposOut;
 
-	float sensitivity = 0.1f; // change this value to your liking
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
+	xoffset *= m_sensitivity;
+	yoffset *= m_sensitivity;
 
 	m_camera->m_yaw += xoffset;
 	m_camera->m_pitch += yoffset;

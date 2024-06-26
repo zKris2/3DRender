@@ -21,9 +21,11 @@ public:
 	void begin();
 	void end();
 
+	void setInt(const std::string& name, int value);
 	void setFloat(const std::string& name, float value);
 	void setMatrix4(const std::string& name, glm::mat4 value);
 	void setVec3(const std::string& name, float x, float y, float z) const;
+	void setVec3(const std::string& name, glm::vec3& value) const;
 private:
 	void checkShaderError(GLuint target, std::string type);
 

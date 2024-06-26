@@ -18,4 +18,4 @@ add_subdirectory(Application)
 
 add_executable(Rotating-Album "main.cpp" "glad.c")
 
-target_link_libraries(Rotating-Album glfw3.lib pack_glfw app)
+target_link_libraries(Rotating-Album glfw3.lib pack_glfw application)
