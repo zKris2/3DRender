@@ -307,9 +307,9 @@ int main()
 		// clear buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		light_color.x = sin(glfwGetTime() * 2.0f);
+		/*light_color.x = sin(glfwGetTime() * 2.0f);
 		light_color.y = sin(glfwGetTime() * 0.7f);
-		light_color.z = sin(glfwGetTime() * 1.3f);
+		light_color.z = sin(glfwGetTime() * 1.3f);*/
 		glm::vec3 diffuseColor = light_color * glm::vec3(0.5f); // 降低影响
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
 
@@ -319,7 +319,7 @@ int main()
 		shader->setMatrix4("model_matrix", model_matrix);
 		shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		shader->setMatrix4("perspective_matrix", perspective_matrix);
-		shader->setVec3("light_color", light_color);
+	
 		shader->setVec3("light_pos", light_pos);
 		shader->setVec3("model_color", glm::vec3(0.5f, 0.2f, 0.1f));
 		shader->setVec3("view_pos", camera_control->get_camer_pos());
@@ -329,9 +329,6 @@ int main()
 		shader->setVec3("material.specular", 0.5f, 0.5f, 0.5f);
 		shader->setFloat("material.shininess", 32.0f);
 
-		//shader->setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-		//shader->setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // 将光照调暗了一些以搭配场景
-		//shader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 		shader->setVec3("light.ambient", ambientColor);
 		shader->setVec3("light.diffuse", diffuseColor); // 将光照调暗了一些以搭配场景
 		shader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
