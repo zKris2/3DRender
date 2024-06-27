@@ -14,7 +14,6 @@ file(COPY ${ASSETS} DESTINATION ${CMAKE_BINARY_DIR})
 
 add_subdirectory(Application)
 
-
 add_executable(3DRender "main.cpp" "glad.c")
 
-target_link_libraries(3DRender glfw3.lib application)
+target_link_libraries(3DRender glfw3.lib application assimp-vc143-mtd.lib)

@@ -2,15 +2,15 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include"stb_image.h"
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
-#include"Application/camera.h"
-#include"Application/shader.h"
+#include"Application/camera/camera.h"
+#include"Application/assimp/shader.h"
+#include"Application/assimp/model.h"
 
 const unsigned int WINDOW_WIDTH = 1000;
 const unsigned int WINDOW_HEIGHT = 1000;
@@ -208,15 +208,18 @@ int main()
 
 	glBindVertexArray(0);
 
+	Shader model_shader2("assets/shaders/model_vertex.vert", "assets/shaders/model_fragment.frag");
 	auto model_shader = std::make_unique<Shader>("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 	auto light_shader =std::make_unique<Shader>("assets/shaders/light_vertex.vert", "assets/shaders/light_fragment.frag");
-
-	prepareTexture("assets/textures/container2.png", 0);
-	prepareTexture("assets/textures/container2_specular.png", 1);
-
 	//camera
 	camera = std::make_unique<Camera>();
 	auto light_pos = glm::vec3(3.0f, 2.5f, -2.5f);
+
+	auto model = std::make_unique<Model>("assets/model/nanosuit/nanosuit.obj");
+	int tex_num = model->textures_loaded.size();
+
+	prepareTexture("assets/textures/container2.png", tex_num+1);
+	prepareTexture("assets/textures/container2_specular.png", tex_num+2);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -226,7 +229,8 @@ int main()
 
 		processInput(window);
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//model
@@ -296,8 +300,8 @@ int main()
 		model_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		model_shader->setMatrix4("perspective_matrix", perspective_matrix);
 
-		model_shader->setInt("material.diffuse", 0);
-		model_shader->setInt("material.specular", 1);
+		model_shader->setInt("material.diffuse", tex_num + 1);
+		model_shader->setInt("material.specular", tex_num + 2);
 		model_shader->setFloat("material.shininess", 32.0f);
 
 		//glm::vec3 diffuseColor = light_color * glm::vec3(0.5f);
@@ -320,6 +324,19 @@ int main()
 			glBindVertexArray(model_vao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+		model_shader->end();
+
+		auto model_matrix2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		model_matrix2 = glm::scale(model_matrix2, glm::vec3(0.5f));
+		model_matrix2 = glm::rotate(model_matrix2, glm::radians(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		auto perspective_matrix2 = glm::perspective(glm::radians(camera->m_zoom), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
+		model_shader2.begin();
+		model_shader2.setMatrix4("model", model_matrix2);
+		model_shader2.setMatrix4("view", camera->get_camera_matrix());
+		model_shader2.setMatrix4("projection", perspective_matrix2);
+		model->Draw(model_shader2);
+		model_shader2.end();
+		
 
 		// light shader
 		/*light_shader->begin();
