@@ -99,7 +99,7 @@ int main()
 	}
 
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glEnable(GL_DEPTH_TEST);
 
 	glfwSetCursorPosCallback(window, cursor_callback);
@@ -210,7 +210,7 @@ int main()
 
 	//camera
 	camera = std::make_unique<Camera>();
-	auto light_pos = glm::vec3(1.0f, 1.5f, -2.5f);
+	auto light_pos = glm::vec3(3.0f, 2.5f, -2.5f);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -222,9 +222,6 @@ int main()
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::vec3 diffuseColor = light_color * glm::vec3(0.5f); // 降低影响
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
 
 		//model
 		auto model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
@@ -238,7 +235,7 @@ int main()
 
 		//shader
 		model_shader->begin();
-		//shader->setMatrix4("model_matrix", model_matrix);
+		model_shader->setMatrix4("model_matrix", model_matrix);
 		model_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		model_shader->setMatrix4("perspective_matrix", perspective_matrix);
 	
@@ -249,10 +246,16 @@ int main()
 		model_shader->setInt("material.specular", 1);
 		model_shader->setFloat("material.shininess", 32.0f);
 
-		model_shader->setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+		glm::vec3 diffuseColor = light_color * glm::vec3(0.5f); // 降低影响
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
+	
+		model_shader->setVec3("light.position",light_pos);
 		model_shader->setVec3("light.ambient", ambientColor);
 		model_shader->setVec3("light.diffuse", diffuseColor); // 将光照调暗了一些以搭配场景
 		model_shader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		model_shader->setFloat("light.constant", 1.0f);
+		model_shader->setFloat("light.linear", 0.09f);
+		model_shader->setFloat("light.quadratic", 0.032f);
 		
 		for (unsigned int i = 0; i < 10; i++)
 		{
@@ -264,16 +267,15 @@ int main()
 			glBindVertexArray(model_vao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-	
 
 		// light shader
-	/*	light_shader->begin();
-		light_shader->setMatrix4("model_matrix", model_light_matrix);
+		light_shader->begin();
+		light_shader->setMatrix4("model_matrix", light_matrix);
 		light_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		light_shader->setMatrix4("perspective_matrix", perspective_matrix);
-		glBindVertexArray(g_light_vao);
+		glBindVertexArray(light_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		light_shader->end();*/
+		light_shader->end();
 
 		// exchange cache
 		glfwSwapBuffers(window);
