@@ -239,19 +239,21 @@ int main()
 		model_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		model_shader->setMatrix4("perspective_matrix", perspective_matrix);
 	
-		model_shader->setVec3("model_color", glm::vec3(0.5f, 0.2f, 0.1f));
 		model_shader->setVec3("view_pos", camera->m_position);
 
 		model_shader->setInt("material.diffuse", 0);
 		model_shader->setInt("material.specular", 1);
 		model_shader->setFloat("material.shininess", 32.0f);
 
-		glm::vec3 diffuseColor = light_color * glm::vec3(0.5f); // 降低影响
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
-	
-		model_shader->setVec3("light.position",light_pos);
-		model_shader->setVec3("light.ambient", ambientColor);
-		model_shader->setVec3("light.diffuse", diffuseColor); // 将光照调暗了一些以搭配场景
+		model_shader->setVec3("light.position", camera->m_position);
+		model_shader->setVec3("light.direction", camera->m_front);
+		model_shader->setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+
+		//glm::vec3 diffuseColor = light_color * glm::vec3(0.5f);
+		//glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+		model_shader->setVec3("light.ambient", glm::vec3(0.1f));
+		model_shader->setVec3("light.diffuse", glm::vec3(0.8f)); 
+
 		model_shader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 		model_shader->setFloat("light.constant", 1.0f);
 		model_shader->setFloat("light.linear", 0.09f);
@@ -269,13 +271,13 @@ int main()
 		}
 
 		// light shader
-		light_shader->begin();
+		/*light_shader->begin();
 		light_shader->setMatrix4("model_matrix", light_matrix);
 		light_shader->setMatrix4("camera_matrix", camera->get_camera_matrix());
 		light_shader->setMatrix4("perspective_matrix", perspective_matrix);
 		glBindVertexArray(light_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		light_shader->end();
+		light_shader->end();*/
 
 		// exchange cache
 		glfwSwapBuffers(window);
