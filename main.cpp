@@ -248,6 +248,7 @@ int main()
 		model_shader->setVec3("light.position", camera->m_position);
 		model_shader->setVec3("light.direction", camera->m_front);
 		model_shader->setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		model_shader->setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 
 		//glm::vec3 diffuseColor = light_color * glm::vec3(0.5f);
 		//glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
