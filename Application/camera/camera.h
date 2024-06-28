@@ -6,26 +6,25 @@
 #include<glm/gtc/type_ptr.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
-
-#include<memory>
+#include <iostream>
 
 enum Camera_Movement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP
 };
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 4.5f;
-const float SENSITIVITY = 0.2f;
+const float SPEED = 2.5f;
+const float SENSITIVITY = 0.1f;
 const float ZOOM = 30.0f;
 
 class Camera
 {
 public:
-	using ptr = std::unique_ptr<Camera>;
 	Camera(glm::vec3 position = glm::vec3(0.0f,0.5f,3.0f));
 	~Camera();
 

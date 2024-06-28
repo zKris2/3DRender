@@ -1,7 +1,4 @@
 #include"camera.h"
-#include <iostream>
-
-
 
 Camera::Camera(glm::vec3 position)
 	:m_position(position),
@@ -20,7 +17,6 @@ Camera::~Camera()
 }
 glm::mat4 Camera::get_camera_matrix()
 {
-	//lookAt
 	glm::vec3 center = m_position + m_front;
 	return glm::lookAt(m_position,center,m_up);
 }
@@ -56,8 +52,6 @@ void Camera::on_mouse(int button, int action, double xpos, double ypos)
 		m_middle_mouse_down = pressed;
 		break;
 	}
-
-
 }
 void Camera::on_cursor(double xpos, double ypos)
 {
@@ -108,6 +102,8 @@ void Camera::on_key(Camera_Movement direction, float deltaTime)
 		m_position -= glm::cross(m_front,m_up) * velocity;
 	if (direction == RIGHT)
 		m_position += glm::cross(m_front, m_up) * velocity;
+	if (direction == UP)
+		m_position.y += velocity;
 }
 
 void Camera::on_scroll(double yoffset)
