@@ -12,8 +12,8 @@
 #include"Application/assimp/shader.h"
 #include"Application/assimp/model.h"
 
-const unsigned int WINDOW_WIDTH = 1000;
-const unsigned int WINDOW_HEIGHT = 1000;
+const unsigned int WINDOW_WIDTH = 1920;
+const unsigned int WINDOW_HEIGHT = 1080;
 
 //camera
 Camera::ptr camera;
@@ -36,7 +36,6 @@ void prepareTexture(const std::string& filename,unsigned int uint = 0) {
 	glGenTextures(1, &texture);
 	glad_glActiveTexture(GL_TEXTURE0 + uint);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	//send data to GPU
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_width, img_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	stbi_image_free(data);
@@ -83,6 +82,8 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);//mutismaple anti-aliasing
+	
 
 	GLFWwindow*  window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "3DRender", nullptr, nullptr);
 	if (window == nullptr)
@@ -101,13 +102,10 @@ int main()
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
 
 	glfwSetCursorPosCallback(window, cursor_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-
-	//bind events
-	//bind_events(window);
-
 
 	float cube[] = {
 		// positions          // normals           // texture coords
