@@ -53,22 +53,97 @@ int main()
 	}
 
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
-	glfwSetCursorPosCallback(window, cursor_callback);
+	//glfwSetCursorPosCallback(window, cursor_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+
+	//CAMERA
+	camera.set_init_position(glm::vec3(0.0f, 1.0f, 5.0f));
+
+	//VAO VBO
+	float cube[] = {
+		// positions          // normals           // texture coords
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+	};
+	glm::vec3 light_position[] = {
+		glm::vec3(1.0f, 2.0f, -1.0f),
+		glm::vec3(2.0f, 3.0f, -2.0f)
+	};
+	std::cout << sizeof(light_position) << std::endl;
+
+	//nanosuit
+	Shader model_shader("assets/shaders/model.vert", "assets/shaders/model.frag");
+	Model assimp_model = Model("assets/model/nanosuit/nanosuit.obj");
+	float model_angle=0.0f;
+	//light
+	Shader light_shader("assets/shaders/light.vert", "assets/shaders/light.frag");
+	glm::vec3 light_color(1.0f);//attribute
+	float light_angle = 0.0f;
+
+
+	GLuint light_vao, light_vbo;
+
+	glGenVertexArrays(1, &light_vao);
+	glGenBuffers(1, &light_vbo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, light_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+	glBindVertexArray(light_vao);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0);
+
+	glBindVertexArray(0);
 
 	// IMGUI
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); 
+	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
-
-	Shader model_shader("assets/shaders/model.vert", "assets/shaders/model.frag");
-	Model assimp_model = Model("assets/model/nanosuit/nanosuit.obj");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -84,15 +159,40 @@ int main()
 		model_shader.begin();
 		glm::mat4 model(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.3f));
-		model = glm::rotate(model,45.0f,glm::vec3(0.0f,1.0f,0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));
+		model = glm::rotate(model, model_angle, glm::vec3(0.0f, 1.0f, 0.0f));
 		model_shader.setMatrix4("model", model);
 		model_shader.setMatrix4("view", camera.get_camera_matrix());
 		glm::mat4 projection(1.0f);
 		projection = glm::perspective(glm::radians(camera.m_zoom),(float)WINDOW_WIDTH/(float)WINDOW_HEIGHT,0.1f,1000.0f);
 		model_shader.setMatrix4("projection", projection);
+		model_shader.setVec3("light_color", light_color);
+		model_shader.setVec3("light_position", light_position[0]);
+		model_shader.setVec3("view_position", camera.m_position);
 		assimp_model.Draw(model_shader);
 		model_shader.end();
+
+		light_shader.begin();
+		glm::mat4 projection2(1.0f);
+		projection2 = glm::perspective(glm::radians(camera.m_zoom), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
+		light_shader.setMatrix4("projection", projection2);
+		light_shader.setMatrix4("view", camera.get_camera_matrix());
+		light_shader.setVec3("light_color", light_color);
+		glBindVertexArray(light_vao);
+		for (int i = 0; i < sizeof(light_position)/sizeof(light_position[0]); i++)
+		{
+			float radius = glm::distance(light_position[i], glm::vec3(0, light_position[i].y, 0));
+			light_position[i].x = radius * sin(glfwGetTime());
+			light_position[i].z = radius * cos(glfwGetTime());
+			glm::mat4 model2(1.0f);
+			model2 = glm::translate(model2, light_position[i]);
+			model2 = glm::scale(model2, glm::vec3(0.1f));
+			model2 = glm::rotate(model2, 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+			light_shader.setMatrix4("model", model2);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		
+		light_shader.end();
 
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -100,6 +200,9 @@ int main()
 		ImGui::NewFrame();
 		ImGui::Begin("IMGUI");
 			ImGui::Text("Come on,Let's do it!");
+			ImGui::SliderFloat("model-angle", &model_angle, 0, 10*3.14f);
+			ImGui::SliderFloat("light-angle", &light_angle, 0.0f, 6.28f);
+			ImGui::ColorEdit3("light-color", (float*)&light_color);
 		ImGui::End();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -169,4 +272,6 @@ void processInput(GLFWwindow* window)
 		camera.on_key(RIGHT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		camera.on_key(UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS)
+		camera.on_key(DOWN, deltaTime);
 }

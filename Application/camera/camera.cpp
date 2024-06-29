@@ -104,6 +104,8 @@ void Camera::on_key(Camera_Movement direction, float deltaTime)
 		m_position += glm::cross(m_front, m_up) * velocity;
 	if (direction == UP)
 		m_position.y += velocity;
+	if (direction == DOWN)
+		m_position.y -= velocity;
 }
 
 void Camera::on_scroll(double yoffset)

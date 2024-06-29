@@ -13,7 +13,8 @@ enum Camera_Movement {
 	BACKWARD,
 	LEFT,
 	RIGHT,
-	UP
+	UP,
+	DOWN
 };
 
 const float YAW = -90.0f;
@@ -25,7 +26,7 @@ const float ZOOM = 30.0f;
 class Camera
 {
 public:
-	Camera(glm::vec3 position = glm::vec3(0.0f,0.5f,3.0f));
+	Camera(glm::vec3 position = glm::vec3(0.0f,0.0f,3.0f));
 	~Camera();
 
 	glm::mat4 get_camera_matrix();
@@ -37,6 +38,7 @@ public:
 	virtual void on_scroll(double yoffset);
 
 	void set_movement_speed(float speed) { m_movement_speed = speed; }
+	void set_init_position(glm::vec3 position) { m_position = position; };
 
 public:
 	glm::vec3 m_position;
