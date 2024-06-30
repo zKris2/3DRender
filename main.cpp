@@ -12,9 +12,13 @@
 #include "application/imgui/imgui_impl_glfw.h"
 #include "application/imgui/imgui_impl_opengl3.h"
 
+#include <learnopengl/shader.h>
+#include<learnopengl/animation.h>
+#include<learnopengl/animator.h>
+
 #include"Application/camera/camera.h"
-#include"Application/assimp/shader.h"
-#include"Application/assimp/model.h"
+
+#include<thread>
 
 const unsigned int WINDOW_WIDTH = 1920;
 const unsigned int WINDOW_HEIGHT = 1080;
@@ -109,19 +113,19 @@ int main()
 	};
 	glm::vec3 light_position[] = {
 		glm::vec3(1.0f, 2.0f, -1.0f),
-		glm::vec3(2.0f, 3.0f, -2.0f)
 	};
-	std::cout << sizeof(light_position) << std::endl;
 
 	//nanosuit
 	Shader model_shader("assets/shaders/model.vert", "assets/shaders/model.frag");
 	Model assimp_model = Model("assets/model/nanosuit/nanosuit.obj");
 	float model_angle=0.0f;
+
 	//light
 	Shader light_shader("assets/shaders/light.vert", "assets/shaders/light.frag");
 	glm::vec3 light_color(1.0f);//attribute
 	float light_angle = 0.0f;
-
+	float rotationSpeed = 1; // rotationSpeed 是旋转速度的系数
+	
 
 	GLuint light_vao, light_vbo;
 
@@ -152,7 +156,7 @@ int main()
 		lastFrame = currentFrame;
 
 		processInput(window);
-
+		
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -169,6 +173,10 @@ int main()
 		model_shader.setVec3("light_color", light_color);
 		model_shader.setVec3("light_position", light_position[0]);
 		model_shader.setVec3("view_position", camera.m_position);
+		model_shader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+		model_shader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+		model_shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+		model_shader.setFloat("material.shininess", 32.0f);
 		assimp_model.Draw(model_shader);
 		model_shader.end();
 
@@ -182,8 +190,9 @@ int main()
 		for (int i = 0; i < sizeof(light_position)/sizeof(light_position[0]); i++)
 		{
 			float radius = glm::distance(light_position[i], glm::vec3(0, light_position[i].y, 0));
-			light_position[i].x = radius * sin(glfwGetTime());
-			light_position[i].z = radius * cos(glfwGetTime());
+			light_position[i].x = radius * sin(light_angle * rotationSpeed);
+			light_position[i].z = radius * cos(light_angle * rotationSpeed);
+		
 			glm::mat4 model2(1.0f);
 			model2 = glm::translate(model2, light_position[i]);
 			model2 = glm::scale(model2, glm::vec3(0.1f));
@@ -200,8 +209,8 @@ int main()
 		ImGui::NewFrame();
 		ImGui::Begin("IMGUI");
 			ImGui::Text("Come on,Let's do it!");
-			ImGui::SliderFloat("model-angle", &model_angle, 0, 10*3.14f);
-			ImGui::SliderFloat("light-angle", &light_angle, 0.0f, 6.28f);
+			ImGui::SliderFloat("model-angle", &model_angle, -10*3.14f, 10*3.14f);
+			ImGui::SliderFloat("light-angle", &light_angle, -6.28f, 6.28f);
 			ImGui::ColorEdit3("light-color", (float*)&light_color);
 		ImGui::End();
 		ImGui::Render();

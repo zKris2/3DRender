@@ -113,6 +113,6 @@ void Camera::on_scroll(double yoffset)
 	m_zoom -= ((float)yoffset * m_movement_speed);
 	if (m_zoom < 1.0f)
 		m_zoom = 1.0f;
-	if (m_zoom > 30.0f)
-		m_zoom = 30.0f;
+	if (m_zoom > 60.0f)
+		m_zoom = 60.0f;
 }
