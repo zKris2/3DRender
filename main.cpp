@@ -124,6 +124,7 @@ int main()
 	Shader light_shader("assets/shaders/light.vert", "assets/shaders/light.frag");
 	glm::vec3 light_color(1.0f);//attribute
 	float light_angle = 0.0f;
+	float light_radius = glm::distance(light_position[0], glm::vec3(0, light_position[0].y, 0));;
 	float rotationSpeed = 1; // rotationSpeed 是旋转速度的系数
 	
 
@@ -170,13 +171,15 @@ int main()
 		glm::mat4 projection(1.0f);
 		projection = glm::perspective(glm::radians(camera.m_zoom),(float)WINDOW_WIDTH/(float)WINDOW_HEIGHT,0.1f,1000.0f);
 		model_shader.setMatrix4("projection", projection);
-		model_shader.setVec3("light_color", light_color);
-		model_shader.setVec3("light_position", light_position[0]);
 		model_shader.setVec3("view_position", camera.m_position);
-		model_shader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-		model_shader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-		model_shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-		model_shader.setFloat("material.shininess", 32.0f);
+		model_shader.setVec3("point_light.color", light_color);
+		model_shader.setVec3("point_light.position", light_position[0]);
+		model_shader.setVec3("point_light.ambient", 0.4f, 0.4f, 0.4f);
+		model_shader.setVec3("point_light.diffuse", 0.8f, 0.8f, 0.8f);
+		model_shader.setVec3("point_light.specular", 1.0f, 1.0f, 1.0f);
+		model_shader.setFloat("point_light.constant", 1.0f);
+		model_shader.setFloat("point_light.linear", 0.09f);
+		model_shader.setFloat("point_light.quadratic", 0.032f);
 		assimp_model.Draw(model_shader);
 		model_shader.end();
 
@@ -189,9 +192,8 @@ int main()
 		glBindVertexArray(light_vao);
 		for (int i = 0; i < sizeof(light_position)/sizeof(light_position[0]); i++)
 		{
-			float radius = glm::distance(light_position[i], glm::vec3(0, light_position[i].y, 0));
-			light_position[i].x = radius * sin(light_angle * rotationSpeed);
-			light_position[i].z = radius * cos(light_angle * rotationSpeed);
+			light_position[i].x = light_radius * sin(light_angle * rotationSpeed);
+			light_position[i].z = light_radius * cos(light_angle * rotationSpeed);
 		
 			glm::mat4 model2(1.0f);
 			model2 = glm::translate(model2, light_position[i]);
@@ -211,6 +213,7 @@ int main()
 			ImGui::Text("Come on,Let's do it!");
 			ImGui::SliderFloat("model-angle", &model_angle, -10*3.14f, 10*3.14f);
 			ImGui::SliderFloat("light-angle", &light_angle, -6.28f, 6.28f);
+			ImGui::SliderFloat("light-radius", &light_radius, 1, 5.0f);
 			ImGui::ColorEdit3("light-color", (float*)&light_color);
 		ImGui::End();
 		ImGui::Render();
