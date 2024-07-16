@@ -29,7 +29,6 @@ void main()
 
     //For Light
 	model_position = vec3(model * vec4(aPos, 1.0));
-	//model_normal = aNormal;
 	model_normal =mat3(transpose(inverse(model))) * aNormal;
 	model_texcoord = aTexCoords;
 }
